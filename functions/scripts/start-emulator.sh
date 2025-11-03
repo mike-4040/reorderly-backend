@@ -14,7 +14,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 # Start TypeScript compiler in watch mode
-./node_modules/typescript/bin/tsc -w --preserveWatchOutput &
+npx tsc -w --preserveWatchOutput &
 tsc_pid=$!
 
 # Start Firebase emulators
