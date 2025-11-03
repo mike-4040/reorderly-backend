@@ -35,6 +35,7 @@ ESLint is configured in `eslint.config.mjs` with strict TypeScript rules and imp
 ### Import Ordering
 
 Imports are automatically organized in this order:
+
 1. Node.js built-in modules
 2. npm packages
 3. Internal modules
@@ -45,6 +46,7 @@ Imports within each group are alphabetically sorted with blank lines between gro
 ## Prettier
 
 Prettier is configured in `.prettierrc` with the following key settings:
+
 - Single quotes
 - Semicolons
 - Trailing commas
@@ -54,6 +56,7 @@ Prettier is configured in `.prettierrc` with the following key settings:
 ## VS Code Setup
 
 Install these extensions for the best experience:
+
 - **ESLint** (`dbaeumer.vscode-eslint`)
 - **Prettier** (`esbenp.prettier-vscode`)
 
@@ -84,11 +87,13 @@ These commands will fail if there are linting errors or formatting issues.
 To exclude files from linting or formatting:
 
 **ESLint**: Add patterns to the `ignores` array in `eslint.config.mjs`:
+
 ```javascript
-ignores: ['lib/**/*', 'eslint.config.mjs', 'package-lock.json']
+ignores: ['lib/**/*', 'eslint.config.mjs', 'package-lock.json'];
 ```
 
 **Prettier**: Add patterns to `.prettierignore`:
+
 ```
 lib
 node_modules
