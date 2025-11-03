@@ -26,3 +26,28 @@ When creating or updating technical documentation:
 
 Good documentation answers: "What do I need to know to use this effectively?"
 Bad documentation explains: "Here's every configuration option and its internal workings"
+
+## Error Handling
+
+Use structured error messages with the `functionName_problem` pattern:
+
+```typescript
+throw new Error('getRequiredEnv_missingEnvVariable', { 
+  cause: { key: 'API_KEY' } 
+});
+```
+
+- **Message format**: `functionName_problem` (e.g., `validateState_expired`, `exchangeToken_invalidCode`)
+- **Context in cause**: Add details via `{ cause: { ... } }` for debugging
+- **Benefits**: Easier to parse programmatically, structured logging, clear error origins
+
+## Node.js Imports
+
+Use the `node:` prefix for built-in modules:
+
+```typescript
+import { env } from 'node:process';
+import { readFile } from 'node:fs/promises';
+```
+
+This is the modern Node.js standard and makes it explicit that you're importing from Node.js built-ins, not npm packages.
