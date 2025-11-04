@@ -19,6 +19,10 @@ tsc_pid=$!
 
 # Load environment variables using Doppler
 doppler secrets download --project backend --config dev --format env --no-file > .env
+if [ $? -ne 0 ]; then
+  echo "downloadSecrets_failed" 1>&2
+  exit 1
+fi
 
 # Start Firebase emulators with environment variables in .env
 firebase emulators:start --only functions &
