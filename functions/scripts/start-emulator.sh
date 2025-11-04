@@ -17,8 +17,8 @@ trap cleanup SIGINT SIGTERM
 npx tsc -w --preserveWatchOutput &
 tsc_pid=$!
 
-# Start Firebase emulators
-firebase emulators:start --only functions &
+# Start Firebase emulators with Doppler for environment management
+doppler run -p backend -c dev -- firebase emulators:start --only functions &
 emulator_pid=$!
 
 # Wait for both processes
