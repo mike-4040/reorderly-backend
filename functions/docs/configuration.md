@@ -2,19 +2,11 @@
 
 ## Environment Variables
 
-Create `.env` from `.env.example`:
+We maintain all environment variables and secrets centrally in **Doppler**.
 
-```bash
-# Square OAuth
-SQUARE_CLIENT_ID=
-SQUARE_CLIENT_SECRET=
-SQUARE_REDIRECT_URI=
-SQUARE_ENVIRONMENT=sandbox  # or production
+Documentation: [docs.doppler.com](https://docs.doppler.com/docs/accessing-secrets).
 
-# Application
-ONBOARDING_URL=
-ERROR_PAGE_URL=  # optional, defaults to /error
-```
+For local development or emulator use, we download them into a `.env` file.
 
 ## Usage
 
@@ -28,22 +20,30 @@ const onboardingUrl = config.onboardingUrl;
 
 ## How It Works
 
-- **Lazy loading** - Values validated only when accessed
-- **Test-friendly** - Set `process.env` in tests before accessing config
-- **Required by default** - Throws error if env var missing
-- **Optional values** - Use `??` operator (e.g., `ERROR_PAGE_URL`)
+- We use the Doppler CLI to download secrets and store them in a `.env` file:
+
+```bash
+doppler secrets download --project backend --config dev --format env --no-file > .env
+```
+
+- For local development or emulators, we use the resulting `.env` so our app can load environment variables normally.
+- For CI/CD or deployment, we follow the same pattern — download the correct environment’s secrets from Doppler into `.env`, then deploy.
+- `.env` files are **not** committed to version control; secrets are managed in Doppler.
+- The config utility uses **lazy loading** and throws if a required environment variable is missing. Optional values can use `??` for defaults.
 
 ## Adding New Config
 
+1. Add the key in Doppler for all relevant environments (`dev`, `stg`, `prd`).
+2. Update the `config` utility code accordingly.
+
 ```typescript
 export const config = {
+  // existing providers ...
   get newProvider(): NewProviderConfig {
     return {
       apiKey: getRequiredEnv('NEW_PROVIDER_API_KEY'),
-      // ...
+      // more keys
     };
   },
 };
 ```
-
-Add to `.env.example` and update this doc.

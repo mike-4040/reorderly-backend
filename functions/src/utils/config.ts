@@ -5,13 +5,6 @@
 
 import { env } from 'node:process';
 
-interface SquareConfig {
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
-  environment: 'sandbox' | 'production';
-}
-
 /**
  * Get required environment variable
  */
@@ -28,7 +21,7 @@ function getRequiredEnv(key: string): string {
  * Values are validated only when accessed, making it easier to mock in tests
  */
 export const config = {
-  get square(): SquareConfig {
+  get square() {
     return {
       clientId: getRequiredEnv('SQUARE_CLIENT_ID'),
       clientSecret: getRequiredEnv('SQUARE_CLIENT_SECRET'),
@@ -37,11 +30,11 @@ export const config = {
     };
   },
 
-  get onboardingUrl(): string {
+  get onboardingUrl() {
     return getRequiredEnv('ONBOARDING_URL');
   },
 
-  get errorPageUrl(): string {
+  get errorPageUrl() {
     return env.ERROR_PAGE_URL ?? '/error';
   },
-};
+} as const;
