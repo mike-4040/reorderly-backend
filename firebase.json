@@ -5,15 +5,24 @@
       "codebase": "default",
       "disallowLegacyRuntimeConfig": true,
       "ignore": [
-        "node_modules",
+        "*.local",
+        ".env",
         ".git",
-        "firebase-debug.log",
+        ".gitignore",
+        ".prettierignore",
+        ".prettierrc",
+        "docs",
+        "eslint.config.js",
         "firebase-debug.*.log",
-        "*.local"
+        "firebase-debug.log",
+        "node_modules",
+        "scripts",
+        "src"
       ],
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
+        "npm --prefix \"$RESOURCE_DIR\" run build",
+        "doppler secrets download --project backend --config stg --format env --no-file > \"$RESOURCE_DIR\"/.env"
       ]
     }
   ]

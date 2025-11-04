@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "reorderly-staging"
-  }
+    "default": "reorderly-staging",
+    "staging": "reorderly-staging"
+  },
+  "targets": {},
+  "etags": {}
 }
