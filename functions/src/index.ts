@@ -1,7 +1,12 @@
 import { onRequest } from 'firebase-functions/https';
 
+import { squareAuthorize } from './oauth/square/authorize';
+import { squareCallback } from './oauth/square/callback';
 import { config } from './utils/config';
 import { handleError } from './utils/error-handler';
+
+// OAuth endpoints
+export { squareAuthorize, squareCallback };
 
 export const helloWorld = onRequest((_request, response) => {
   try {

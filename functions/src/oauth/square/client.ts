@@ -1,0 +1,189 @@
+/**
+ * Square OAuth client implementation
+ */
+
+import { Timestamp } from 'firebase-admin/firestore';
+import { SquareClient, SquareEnvironment } from 'square';
+
+import { Location, MerchantInfo } from '../../merchants/types';
+import { config } from '../../utils/config';
+import { TokenResponse } from '../types';
+
+/**
+ * Square OAuth scopes we request
+ */
+const REQUIRED_SCOPES = [
+  'MERCHANT_PROFILE_READ',
+  'ORDERS_READ',
+  'ORDERS_WRITE',
+  'ITEMS_READ',
+] as const;
+
+/**
+ * Cached Square SDK client for OAuth operations (no authentication)
+ */
+let cachedSquareClient: SquareClient | null = null;
+
+/**
+ * Get Square SDK client for OAuth operations
+ */
+function getSquareClient(): SquareClient {
+  cachedSquareClient ??= new SquareClient({
+    environment:
+      config.square.environment === 'production'
+        ? SquareEnvironment.Production
+        : SquareEnvironment.Sandbox,
+  });
+  return cachedSquareClient;
+}
+
+/**
+ * Generate Square OAuth authorization URL
+ */
+export function generateAuthorizationUrl(state: string): string {
+  const params = new URLSearchParams({
+    client_id: config.square.clientId,
+    scope: REQUIRED_SCOPES.join(' '),
+    session: 'false', // Don't keep user logged in after redirect
+    state,
+  });
+
+  const baseUrl =
+    config.square.environment === 'production'
+      ? 'https://connect.squareup.com'
+      : 'https://connect.squareupsandbox.com';
+
+  return `${baseUrl}/oauth2/authorize?${params.toString()}`;
+}
+
+/**
+ * Exchange authorization code for access tokens
+ */
+export async function exchangeCodeForTokens(code: string): Promise<TokenResponse> {
+  const client = getSquareClient();
+
+  try {
+    const response = await client.oAuth.obtainToken({
+      clientId: config.square.clientId,
+      clientSecret: config.square.clientSecret,
+      code,
+      grantType: 'authorization_code',
+    });
+
+    if (!response.accessToken || !response.refreshToken) {
+      throw new Error('exchangeCodeForTokens_missingTokens');
+    }
+
+    // Calculate expiration timestamp
+    const expiresInMs = response.expiresAt
+      ? new Date(response.expiresAt).getTime() - Date.now()
+      : 30 * 24 * 60 * 60 * 1000; // Default to 30 days
+
+    const expiresAt = Timestamp.fromMillis(Date.now() + expiresInMs);
+
+    return {
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+      expiresAt,
+      scopes: [], // Square doesn't return scopes in response, we know them from request
+    };
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('exchangeCodeForTokens_')) {
+      throw error;
+    }
+
+    console.error('Square token exchange failed:', error);
+    throw new Error('exchangeCodeForTokens_failed', { cause: error });
+  }
+}
+
+/**
+ * Fetch merchant information from Square
+ */
+export async function fetchMerchantInfo(accessToken: string): Promise<MerchantInfo> {
+  try {
+    const client = new SquareClient({
+      environment:
+        config.square.environment === 'production'
+          ? SquareEnvironment.Production
+          : SquareEnvironment.Sandbox,
+      token: accessToken,
+    });
+
+    // Fetch merchant details
+    const { data: merchants } = await client.merchants.list();
+
+    if (merchants.length === 0) {
+      throw new Error('fetchMerchantInfo_missingMerchant');
+    }
+
+    const [merchant] = merchants;
+
+    // Fetch locations
+    const locationsResponse = await client.locations.list();
+    const fetchedLocations = locationsResponse.locations ?? [];
+
+    const locations: Location[] = fetchedLocations.map((loc) => {
+      const addr = loc.address;
+      const addressParts = [
+        addr?.addressLine1,
+        addr?.addressLine2,
+        addr?.locality,
+        addr?.administrativeDistrictLevel1,
+        addr?.postalCode,
+      ].filter(Boolean);
+
+      return {
+        id: loc.id ?? '',
+        name: loc.name ?? '',
+        address: addressParts.length > 0 ? addressParts.join(', ') : undefined,
+        timezone: loc.timezone ?? undefined,
+        capabilities: loc.capabilities,
+      };
+    });
+
+    return {
+      id: merchant.id ?? '',
+      name: merchant.businessName ?? '',
+      email: merchant.mainLocationId ?? '', // Square doesn't provide email directly
+      locations,
+    };
+  } catch (error) {
+    throw new Error('fetchMerchantInfo_failed', { cause: error });
+  }
+}
+
+/**
+ * Refresh access token using refresh token
+ */
+export async function refreshAccessToken(refreshToken: string): Promise<TokenResponse> {
+  try {
+    const client = getSquareClient();
+
+    const response = await client.oAuth.obtainToken({
+      clientId: config.square.clientId,
+      clientSecret: config.square.clientSecret,
+      refreshToken,
+      grantType: 'refresh_token',
+    });
+
+    if (!response.accessToken || !response.refreshToken) {
+      throw new Error('refreshAccessToken_missingTokens');
+    }
+
+    const expiresInMs = response.expiresAt
+      ? new Date(response.expiresAt).getTime() - Date.now()
+      : 30 * 24 * 60 * 60 * 1000;
+
+    const expiresAt = Timestamp.fromMillis(Date.now() + expiresInMs);
+
+    return {
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+      expiresAt,
+      scopes: [],
+    };
+  } catch (error) {
+    throw new Error('refreshAccessToken_failed', { cause: error });
+  }
+}
