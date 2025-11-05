@@ -55,6 +55,7 @@ Square OAuth requires a publicly accessible callback URL. For local development,
 **See detailed setup instructions:** [ngrok-setup.md](./ngrok-setup.md)
 
 **Quick steps:**
+
 1. Start emulator: `npm start`
 2. Start ngrok: `npm run tunnel`
 3. Update `SQUARE_REDIRECT_URI` in Doppler with ngrok URL

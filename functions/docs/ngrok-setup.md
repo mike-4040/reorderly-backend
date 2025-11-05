@@ -64,6 +64,7 @@ Forwarding   https://abdul-purehearted-undecidedly.ngrok-free.dev -> http://loca
 ### 5. Copy the ngrok URL
 
 The ngrok public URL is available in two places:
+
 - In the terminal output where you started ngrok
 - In the ngrok web UI at `http://localhost:4040`
 
