@@ -6,11 +6,12 @@
 import { onRequest } from 'firebase-functions/https';
 
 import { upsertMerchant } from '../../merchants/repository';
+import { fetchMerchantInfo } from '../../providers/square/client';
 import { config } from '../../utils/config';
 import { ExternalError, handleError } from '../../utils/error-handler';
 import { validateAndConsumeState } from '../shared/state';
 
-import { exchangeCodeForTokens, fetchMerchantInfo } from './client';
+import { exchangeCodeForTokens } from './client';
 
 /**
  * Handle Square OAuth callback
