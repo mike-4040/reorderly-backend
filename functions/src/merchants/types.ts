@@ -54,25 +54,37 @@ export interface MerchantMetadata {
 }
 
 /**
- * Complete merchant record
+ * Base merchant data shared between all merchant types
  */
-export interface Merchant {
-  id: string; // Our internal ID (Firestore doc ID)
+export interface MerchantBase {
   provider: Provider;
-  providerId: string; // merchant_id from provider
+  providerMerchantId: string; // merchant_id from provider
   tokens: TokenData;
   locations: Location[];
+}
+
+/**
+ * Complete merchant record
+ */
+export interface Merchant extends MerchantBase {
+  id: string; // Our internal ID (Firestore doc ID)
   metadata: MerchantMetadata;
+}
+
+/**
+ * Merchant information from provider (raw OAuth response)
+ */
+export interface MerchantInfo {
+  id: string; // Provider's merchant ID
+  name?: string;
+  email?: string;
+  locations: Location[];
 }
 
 /**
  * Data required to create/update a merchant
  */
-export interface MerchantInput {
-  provider: Provider;
-  providerId: string;
-  tokens: TokenData;
-  locations: Location[];
+export interface MerchantInput extends MerchantBase {
   appVersion?: string;
   ip?: string;
   userAgent?: string;
