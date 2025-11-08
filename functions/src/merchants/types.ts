@@ -58,6 +58,8 @@ export interface MerchantMetadata {
  * Base merchant data shared between all merchant types
  */
 export interface MerchantBase {
+  email: string;
+  name: string;
   provider: Provider;
   providerMerchantId: string; // merchant_id from provider
   tokens: TokenData;
@@ -77,8 +79,8 @@ export interface Merchant extends MerchantBase {
  */
 export interface MerchantInfo {
   id: string; // Provider's merchant ID
-  name?: string;
-  email?: string;
+  name: string;
+  email: string;
   locations: Location[];
 }
 

@@ -39,12 +39,12 @@ function getSquareClient(): SquareClient {
 /**
  * Generate Square OAuth authorization URL
  */
-export function generateAuthorizationUrl(state: string): string {
+export function generateAuthorizationUrl(stateId: string): string {
   const params = new URLSearchParams({
     client_id: config.square.clientId,
     scope: REQUIRED_SCOPES.join(' '),
     session: 'false', // Don't keep user logged in after redirect
-    state,
+    state: stateId,
   });
 
   const baseUrl =
@@ -83,6 +83,7 @@ export async function exchangeCodeForTokens(code: string): Promise<TokenResponse
     return {
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
+      merchantId: response.merchantId ?? '',
       expiresAt,
       scopes: [], // Square doesn't return scopes in response, we know them from request
     };
@@ -116,6 +117,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRes
     const expiresAt = Timestamp.fromMillis(Date.now() + expiresInMs);
 
     return {
+      merchantId: response.merchantId ?? '',
       accessToken: response.accessToken,
       refreshToken: response.refreshToken,
       expiresAt,

@@ -5,11 +5,16 @@
 
 import { onRequest } from 'firebase-functions/https';
 
-import { upsertMerchant } from '../../merchants/repository';
+import {
+  getMerchantByProviderId,
+  updateMerchant,
+  upsertMerchant,
+} from '../../merchants/repository';
 import { fetchMerchantInfo } from '../../providers/square/client';
 import { config } from '../../utils/config';
 import { ExternalError, handleError } from '../../utils/error-handler';
 import { validateAndConsumeState } from '../shared/state';
+import { OAUTH_FLOWS } from '../types';
 
 import { exchangeCodeForTokens } from './client';
 
@@ -40,7 +45,7 @@ export const squareCallback = onRequest(async (req, res) => {
       throw new ExternalError('Missing or invalid state parameter');
     }
 
-    await validateAndConsumeState(state);
+    const { flow } = await validateAndConsumeState(state);
 
     // Validate code
     if (!code || typeof code !== 'string') {
@@ -50,11 +55,40 @@ export const squareCallback = onRequest(async (req, res) => {
     // Exchange code for tokens
     const tokens = await exchangeCodeForTokens(code);
 
+    if (flow === OAUTH_FLOWS.login) {
+      const merchant = await getMerchantByProviderId('square', tokens.merchantId);
+
+      if (!merchant) {
+        throw new ExternalError(
+          'No merchant found for the given Square account. Please install the app first.',
+        );
+      }
+
+      console.log('Logging in existing merchant', { merchantId: merchant.id });
+
+      await updateMerchant(merchant.id, {
+        tokens: {
+          access: tokens.accessToken,
+          refresh: tokens.refreshToken,
+          expiresAt: tokens.expiresAt,
+          scopes: tokens.scopes,
+        },
+      });
+
+      const destPage = merchant.metadata.onboardingCompleted ? 'settings' : 'welcome';
+
+      const redirectUrl = `${config.onboardingUrl}/${destPage}?merchant_id=${merchant.id}`;
+      res.redirect(redirectUrl);
+      return;
+    }
+
     // Fetch merchant information
     const merchantInfo = await fetchMerchantInfo(tokens.accessToken);
 
     // Save to Firestore
     const merchant = await upsertMerchant({
+      email: merchantInfo.email,
+      name: merchantInfo.name,
       provider: 'square',
       providerMerchantId: merchantInfo.id,
       tokens: {
@@ -69,15 +103,13 @@ export const squareCallback = onRequest(async (req, res) => {
       userAgent: req.get('user-agent'),
     });
 
-    console.log('Merchant connected successfully:', {
-      id: merchant.id,
-      providerMerchantId: merchant.providerMerchantId,
-      locationCount: merchant.locations.length,
-    });
+    console.log({ merchant });
 
-    // Redirect to success page
-    const successUrl = `${config.onboardingUrl}/success?merchant_id=${merchant.id}`;
-    res.redirect(successUrl);
+    const destPage = merchant.metadata.onboardingCompleted ? 'settings' : 'welcome';
+
+    const redirectUrl = `${config.onboardingUrl}/${destPage}?merchant_id=${merchant.id}`;
+
+    res.redirect(redirectUrl);
   } catch (error) {
     handleError(error);
 
