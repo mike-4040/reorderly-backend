@@ -6,9 +6,10 @@
   "scripts": {
     "start": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "lint-ci": "eslint . --max-warnings 0",
     "preview": "vite preview",
+    "generate-routes": "tsr generate",
     "deploy": "npx firebase deploy --only hosting",
     "deploy-preview": "npx firebase hosting:channel:deploy preview"
   },

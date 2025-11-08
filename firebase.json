@@ -45,6 +45,7 @@
       }
     ],
     "predeploy": [
+      "npm --prefix web run generate-routes",
       "npm --prefix web run build"
     ]
   }
