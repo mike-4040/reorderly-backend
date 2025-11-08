@@ -56,6 +56,8 @@ export async function upsertMerchant(input: MerchantInput): Promise<Merchant> {
   } else {
     // Create new merchant
     const newMerchant: Omit<Merchant, 'id'> = {
+      email: input.email,
+      name: input.name,
       provider: input.provider,
       providerMerchantId: input.providerMerchantId,
       tokens: input.tokens,
@@ -83,6 +85,29 @@ export async function upsertMerchant(input: MerchantInput): Promise<Merchant> {
 
     return { ...newMerchant, id: docRef.id };
   }
+}
+
+/**
+ * Update merchant fields
+ */
+export async function updateMerchant(
+  id: string,
+  updates: Partial<Omit<Merchant, 'id'>>,
+): Promise<void> {
+  await collections.merchants.doc(id).update(
+    {
+      ...updates,
+      'metadata.lastRefreshedAt': Timestamp.now(),
+    },
+    { exists: true },
+  );
+
+  // Add audit log
+  await collections.auditLogs.add({
+    merchantId: id,
+    event: 'merchant_updated',
+    timestamp: Timestamp.now(),
+  });
 }
 
 /**

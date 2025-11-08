@@ -7,7 +7,7 @@ import { randomBytes } from 'node:crypto';
 import { Timestamp } from 'firebase-admin/firestore';
 
 import { collections } from '../../utils/firestore';
-import { OAuthState } from '../types';
+import { OAuthFlow, OAuthState } from '../types';
 
 const STATE_LENGTH = 32; // bytes
 const STATE_TTL_MINUTES = 10;
@@ -22,46 +22,46 @@ function generateStateString(): string {
 /**
  * Create and store OAuth state for CSRF protection
  */
-export async function createState(metadata?: Record<string, unknown>): Promise<string> {
-  const state = generateStateString();
+export async function createState(flow: OAuthFlow): Promise<string> {
+  const stateId = generateStateString();
   const now = Timestamp.now();
   const expiresAt = Timestamp.fromMillis(now.toMillis() + STATE_TTL_MINUTES * 60 * 1000);
 
   const stateData: OAuthState = {
-    state,
+    stateId,
     createdAt: now,
     expiresAt,
-    metadata,
+    flow,
   };
 
-  await collections.oauthStates.doc(state).set(stateData);
+  await collections.oauthStates.doc(stateId).set(stateData);
 
-  return state;
+  return stateId;
 }
 
 /**
  * Validate and consume OAuth state
  * Throws Error if invalid or expired
  */
-export async function validateAndConsumeState(state: string): Promise<OAuthState> {
-  if (!state) {
+export async function validateAndConsumeState(stateId: string): Promise<OAuthState> {
+  if (!stateId) {
     throw new Error('validateState_missingState');
   }
 
-  const doc = await collections.oauthStates.doc(state).get();
+  const doc = await collections.oauthStates.doc(stateId).get();
 
   if (!doc.exists) {
-    throw new Error('validateState_notFound', { cause: { state } });
+    throw new Error('validateState_notFound', { cause: { state: stateId } });
   }
 
   const stateData = doc.data() as OAuthState;
 
   // Consume the state (delete it so it can't be reused)
-  await collections.oauthStates.doc(state).delete();
+  await collections.oauthStates.doc(stateId).delete();
 
   // Check if expired
   if (Timestamp.now().toMillis() > stateData.expiresAt.toMillis()) {
-    throw new Error('validateState_expired', { cause: { state } });
+    throw new Error('validateState_expired', { cause: { state: stateId } });
   }
 
   return stateData;

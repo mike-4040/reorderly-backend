@@ -75,7 +75,7 @@ Once ngrok is set up:
 2. **Initiate OAuth:**
    - In the test merchant dashboard tab, navigate to:
      ```
-     https://your-subdomain.ngrok-free.dev/reorderly-staging/us-central1/squareAuthorize
+     https://abdul-purehearted-undecidedly.ngrok-free.dev/reorderly-staging/us-central1/squareAuthorize
      ```
    - You should be redirected to Square's authorization page (already logged in as test merchant)
    - Click "Allow" to authorize the application
