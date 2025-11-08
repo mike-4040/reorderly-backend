@@ -51,6 +51,7 @@ export interface MerchantMetadata {
   appVersion?: string;
   revoked: boolean;
   scopesMismatch?: boolean;
+  onboardingCompleted: boolean;
 }
 
 /**

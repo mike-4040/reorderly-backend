@@ -65,6 +65,7 @@ export async function upsertMerchant(input: MerchantInput): Promise<Merchant> {
         lastRefreshedAt: now,
         appVersion: input.appVersion,
         revoked: false,
+        onboardingCompleted: false,
       },
     };
 
