@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { Title, Text, Container } from '@mantine/core';
 
 export const Route = createFileRoute('/suppliers')({
   component: Suppliers,
@@ -6,9 +7,9 @@ export const Route = createFileRoute('/suppliers')({
 
 function Suppliers() {
   return (
-    <div>
-      <h1>Suppliers</h1>
-      <p>Manage your suppliers</p>
-    </div>
+    <Container>
+      <Title order={1}>Suppliers</Title>
+      <Text mt="md">Manage your suppliers</Text>
+    </Container>
   );
 }
