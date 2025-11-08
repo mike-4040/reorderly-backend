@@ -15,7 +15,7 @@ function RootLayout() {
   return (
     <AppShell header={{ height: 60 }} padding="md" withBorder={false}>
       <AppShell.Header>
-        <Tabs value={currentPath} onChange={(value) => navigate({ to: value as string })}>
+        <Tabs value={currentPath} onChange={(value) => value && navigate({ to: value })}>
           <Tabs.List>
             <Tabs.Tab value="/">Home</Tabs.Tab>
             <Tabs.Tab value="/suppliers">Suppliers</Tabs.Tab>
