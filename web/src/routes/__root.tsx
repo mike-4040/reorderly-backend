@@ -1,7 +1,7 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import { AppShell, Tabs } from '@mantine/core';
+import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { useNavigate, useRouterState } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -15,7 +15,11 @@ function RootLayout() {
   return (
     <AppShell header={{ height: 60 }} padding="md" withBorder={false}>
       <AppShell.Header>
-        <Tabs value={currentPath} onChange={(value) => value && navigate({ to: value })}>
+        <Tabs value={currentPath} onChange={(value) => {
+          if (value) {
+            void navigate({ to: value });
+          }
+        }}>
           <Tabs.List>
             <Tabs.Tab value="/">Home</Tabs.Tab>
             <Tabs.Tab value="/suppliers">Suppliers</Tabs.Tab>
