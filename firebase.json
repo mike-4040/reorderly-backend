@@ -22,7 +22,8 @@
         "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build",
         "doppler secrets download --project backend --config stg --format env --no-file > \"$RESOURCE_DIR\"/.env"
-      ]
+      ],
+      "source": "functions"
     }
   ],
   "firestore": {
@@ -48,5 +49,23 @@
       "npm --prefix web run generate-routes",
       "npm --prefix web run build"
     ]
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
   }
 }
