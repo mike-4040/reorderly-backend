@@ -44,6 +44,15 @@ export default defineConfig([
       ...languageOptions,
       parserOptions: { project: "./tsconfig.app.json" },
     },
+    rules: {
+      // Disallow inline type imports (use regular imports instead)
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          prefer: "no-type-imports",
+        },
+      ],
+    },
   },
   {
     name: "App JavaScript Files",

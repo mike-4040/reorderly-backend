@@ -25,7 +25,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Start Firebase emulators with environment variables in .env
-firebase emulators:start --only functions,firestore &
+firebase emulators:start --only functions,firestore,auth &
 emulator_pid=$!
 
 # Wait for both processes
