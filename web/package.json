@@ -11,13 +11,17 @@
     "preview": "vite preview",
     "generate-routes": "tsr generate",
     "deploy": "npx firebase deploy --only hosting",
-    "deploy-preview": "npx firebase hosting:channel:deploy preview"
+    "deploy-preview": "npx firebase hosting:channel:deploy preview",
+    "secrets-dev": "doppler secrets -p web -c dev download --no-file --format env > .env",
+    "secrets-stg": "doppler secrets -p web -c stg download --no-file --format env > .env",
+    "secrets-prd": "doppler secrets -p web -c prd download --no-file --format env > .env"
   },
   "dependencies": {
     "@mantine/core": "^8.3.7",
     "@mantine/hooks": "^8.3.6",
     "@tanstack/react-router": "^1.134.18",
     "@tanstack/router-devtools": "^1.134.18",
+    "firebase": "^12.5.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
