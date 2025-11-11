@@ -15,6 +15,7 @@ trap cleanup SIGINT SIGTERM
 
 # Start TypeScript compiler in watch mode
 npx tsc -w --preserveWatchOutput &
+
 tsc_pid=$!
 
 # Load environment variables using Doppler
@@ -25,7 +26,11 @@ if [ $? -ne 0 ]; then
 fi
 
 # Start Firebase emulators with environment variables in .env
-firebase emulators:start --only functions,firestore,auth --import=./emulators-data --export-on-exit&
+firebase emulators:start \
+  --only functions,firestore,auth \
+  --import=./emulators-data \
+  --export-on-exit&
+
 emulators_pid=$!
 
 # Wait for both processes
