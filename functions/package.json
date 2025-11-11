@@ -8,10 +8,10 @@
     "format-ci": "prettier --check .",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "./scripts/start-emulator.sh",
+    "start": "./scripts/start-emulators.sh",
     "deploy-stg": "firebase deploy --project reorderly-staging --only functions",
     "logs": "firebase functions:log",
-    "tunnel": "ngrok http 5001"
+    "tunnel": "ngrok http 3302"
   },
   "engines": {
     "node": "22"

@@ -2,6 +2,9 @@
 lib/**/*.js
 lib/**/*.js.map
 
+# Authentication, Cloud Firestore, Realtime Database or Cloud Storage
+emulators-data/
+
 # TypeScript v1 declaration files
 typings/
 
