@@ -6,7 +6,7 @@
 cleanup() {
   echo -e "\n\nShutting down..."
   kill $tsc_pid 2>/dev/null
-  kill $emulator_pid 2>/dev/null
+  kill $emulators_pid 2>/dev/null
   exit
 }
 
@@ -25,8 +25,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Start Firebase emulators with environment variables in .env
-firebase emulators:start --only functions,firestore,auth &
-emulator_pid=$!
+firebase emulators:start --only functions,firestore,auth --import=./emulators-data --export-on-exit&
+emulators_pid=$!
 
 # Wait for both processes
 wait
